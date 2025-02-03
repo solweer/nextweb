@@ -3,8 +3,10 @@
 {% block content %}
 <div class="max-w-md mx-auto">
     <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Sign Up</h2>
-    <form method="post" class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+    <form method="POST" class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
         {% csrf_token %}
+        
+        <!-- Display form errors -->
         {% if form.non_field_errors %}
         <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
             {% for error in form.non_field_errors %}
@@ -12,15 +14,15 @@
             {% endfor %}
         </div>
         {% endif %}
-        
+
         <!-- Email field -->
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.email.id_for_label }}">
                 {{ form.email.label }}
             </label>
             <input type="email" 
-                   name="{{ form.email.html_name }}"
-                   id="{{ form.email.id_for_label }}"
+                   name="email"
+                   id="email"
                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.email.errors %}border-red-500{% endif %}"
                    {% if form.email.value %}value="{{ form.email.value }}"{% endif %}
                    required>
@@ -39,8 +41,8 @@
                 {{ form.password1.label }}
             </label>
             <input type="password" 
-                   name="{{ form.password1.html_name }}"
-                   id="{{ form.password1.id_for_label }}"
+                   name="password1"
+                   id="password1"
                    class="peer shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.password1.errors %}border-red-500{% endif %}"
                    required>
             {% if form.password1.errors %}
@@ -55,14 +57,13 @@
             <div class="mt-2 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                 <div class="peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W][value*=[A-Z]][value*=[a-z]][value~=.{8,}])]:w-full 
                             peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W][value*=[A-Z]][value*=[a-z]])]:w-4/5
-                            peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W][value*=[A-Z]])]:w-3/5
                             peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W]])]:w-2/5
                             peer-[&:not(:placeholder-shown):matches([value*=\d])]:w-1/5
                             w-0 h-full transition-all duration-300
                             peer-[&:not(:placeholder-shown):matches([value~=.{8,}])]:bg-green-500
                             peer-[&:not(:placeholder-shown)]:bg-yellow-500"></div>
             </div>
-            
+
             <!-- Password requirements list -->
             <ul class="mt-2 space-y-1 text-sm">
                 <li class="flex items-center space-x-2">
@@ -144,8 +145,8 @@
                 {{ form.password2.label }}
             </label>
             <input type="password" 
-                   name="{{ form.password2.html_name }}"
-                   id="{{ form.password2.id_for_label }}"
+                   name="password2"
+                   id="password2"
                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.password2.errors %}border-red-500{% endif %}"
                    required>
             {% if form.password2.errors %}
