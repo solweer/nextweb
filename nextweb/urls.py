@@ -18,18 +18,15 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from oauth.views import HomeView, SignupView,CustomLoginView,LogoutView,TemplateView
-
+from oauth.views import HomeView, SignupView, LoginView, LogoutView
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'), 
     path('admin/', admin.site.urls),
     path('signup/', SignupView.as_view(), name='signup'),
-    path('login/', CustomLoginView.as_view(), name='login'),
+    path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('accounts/profile/', TemplateView.as_view(template_name='profile.html'), name='profile'),
 ]
-
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

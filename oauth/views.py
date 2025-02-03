@@ -1,79 +1,80 @@
-from django.contrib.auth import login, logout
-from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, RedirectView
-from .models import CustomUser
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
+from django.views import View
+from django.contrib.auth import authenticate,login, logout
+from django.contrib import messages
 from django import forms
-from django.views.generic import TemplateView
+from .models import Userprofile
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.contrib import messages
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 
-@login_required
-def profile(request):
-    return render(request, 'profile.html')
+class HomeView(View):
+    def get(self, request):
+        return render(request, 'home.html')
 
-class HomeView(TemplateView):
-    template_name = 'home.html'
+class SignupForm(forms.Form):
+    email = forms.EmailField()
+    password1 = forms.CharField(widget=forms.PasswordInput())
+    password2 = forms.CharField(widget=forms.PasswordInput())
 
-class SignupForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
-
-    class Meta:
-        model = CustomUser
-        fields = ['email']
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get('password1')
-        password2 = self.cleaned_data.get('password2')
-
-        if password1 and password2 and password1 != password2:
-            raise ValidationError("Passwords don't match")
-        try:
-            validate_password(password2, self.instance)
-        except ValidationError as e:
-            raise ValidationError(list(e.messages))
-
-        return password2
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
-        if commit:
-            user.save()
-        return user
-
-class SignupView(CreateView):
-    model = CustomUser
-    form_class = SignupForm
-    template_name = 'signup.html'
-    success_url = reverse_lazy('home')
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        user = form.save()
-        login(self.request, user)
-        messages.success(self.request, 'Account created successfully! Welcome!')
-        return response
-
-class CustomLoginView(LoginView):
-    template_name = 'login.html'
-    redirect_authenticated_user = True
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, f'Welcome back, {self.request.user.email}!')
-        return response
-
-class LogoutView(RedirectView):
-    url = reverse_lazy('login')
-
-    def get(self, request, *args, **kwargs):
+class SignupView(View):
+    def get(self, request):
         if request.user.is_authenticated:
-            messages.info(request, 'You have been logged out successfully.')
-        logout(request)
-        return super().get(request, *args, **kwargs)
+            return redirect('home')
+        return render(request, 'signup.html', {'form': SignupForm()})
+
+    def post(self, request):
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email already exists")
+                return redirect('signup')
+
+            if password1 != password2:
+                messages.error(request, "Passwords don't match")
+                return redirect('signup')
+
+            try:
+                validate_password(password1)
+            except ValidationError as e:
+                messages.error(request, e.messages[0])
+                return redirect('signup')
+
+            user = User.objects.create_user(
+            username=email,
+            email=email,
+            password=password1
+            )
+            login(request, user)
+            return redirect('home')
+
+        return render(request, 'signup.html', {'form': form})
+
+class LoginView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return render(request, 'login.html')
+
+    def post(self, request):
+        user_email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=user_email, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return redirect('/')
+        else:
+            messages.error(request, "Invalid email or password")
+            return redirect('/login/')
+
+class LogoutView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            auth_logout(request)
+            return redirect('/login/')

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth',
 ]
-AUTH_USER_MODEL = 'oauth.CustomUser'
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

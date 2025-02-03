@@ -1,12 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.conf import settings
-class CustomUser(AbstractUser):
+
+class Userprofile(models.Model):
+    name = models.TextField()
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
-    
-    def save(self, *args, **kwargs):
-        self.username = self.email 
-        super().save(*args, **kwargs)
 
 class Providers(models.Model):
     name = models.TextField(primary_key=True)
