@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Sign Up</h2>
+    <form method="post" class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Email field -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.email.id_for_label }}">
+                {{ form.email.label }}
+            </label>
+            <input type="email" 
+                   name="{{ form.email.html_name }}"
+                   id="{{ form.email.id_for_label }}"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.email.errors %}border-red-500{% endif %}"
+                   {% if form.email.value %}value="{{ form.email.value }}"{% endif %}
+                   required>
+            {% if form.email.errors %}
+            <div class="mt-1 text-red-600 text-sm">
+                {% for error in form.email.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Password field -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.password1.id_for_label }}">
+                {{ form.password1.label }}
+            </label>
+            <input type="password" 
+                   name="{{ form.password1.html_name }}"
+                   id="{{ form.password1.id_for_label }}"
+                   class="peer shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.password1.errors %}border-red-500{% endif %}"
+                   required>
+            {% if form.password1.errors %}
+            <div class="mt-1 text-red-600 text-sm">
+                {% for error in form.password1.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Password strength indicator -->
+            <div class="mt-2 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div class="peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W][value*=[A-Z]][value*=[a-z]][value~=.{8,}])]:w-full 
+                            peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W][value*=[A-Z]][value*=[a-z]])]:w-4/5
+                            peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W][value*=[A-Z]])]:w-3/5
+                            peer-[&:not(:placeholder-shown):matches([value*=\d][value*=\W]])]:w-2/5
+                            peer-[&:not(:placeholder-shown):matches([value*=\d])]:w-1/5
+                            w-0 h-full transition-all duration-300
+                            peer-[&:not(:placeholder-shown):matches([value~=.{8,}])]:bg-green-500
+                            peer-[&:not(:placeholder-shown)]:bg-yellow-500"></div>
+            </div>
+            
+            <!-- Password requirements list -->
+            <ul class="mt-2 space-y-1 text-sm">
+                <li class="flex items-center space-x-2">
+                    <span class="inline-flex items-center text-gray-500">
+                        <svg class="w-4 h-4 mr-2 transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value~=.{8,}])]:text-green-500" 
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path class="peer-[&:not(:placeholder-shown):matches([value~=.{8,}])]:hidden" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path class="hidden peer-[&:not(:placeholder-shown):matches([value~=.{8,}])]:block" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value~=.{8,}])]:text-green-500">
+                            Minimum 8 characters
+                        </span>
+                    </span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="inline-flex items-center text-gray-500">
+                        <svg class="w-4 h-4 mr-2 transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=[A-Z]])]:text-green-500" 
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path class="peer-[&:not(:placeholder-shown):matches([value*=[A-Z]])]:hidden" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path class="hidden peer-[&:not(:placeholder-shown):matches([value*=[A-Z]])]:block" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=[A-Z]])]:text-green-500">
+                            One uppercase letter
+                        </span>
+                    </span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="inline-flex items-center text-gray-500">
+                        <svg class="w-4 h-4 mr-2 transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=[a-z]])]:text-green-500" 
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path class="peer-[&:not(:placeholder-shown):matches([value*=[a-z]])]:hidden" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path class="hidden peer-[&:not(:placeholder-shown):matches([value*=[a-z]])]:block" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=[a-z]])]:text-green-500">
+                            One lowercase letter
+                        </span>
+                    </span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="inline-flex items-center text-gray-500">
+                        <svg class="w-4 h-4 mr-2 transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=\d])]:text-green-500" 
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path class="peer-[&:not(:placeholder-shown):matches([value*=\d])]:hidden" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path class="hidden peer-[&:not(:placeholder-shown):matches([value*=\d])]:block" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=\d])]:text-green-500">
+                            One number
+                        </span>
+                    </span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="inline-flex items-center text-gray-500">
+                        <svg class="w-4 h-4 mr-2 transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=\W])]:text-green-500" 
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path class="peer-[&:not(:placeholder-shown):matches([value*=\W])]:hidden" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path class="hidden peer-[&:not(:placeholder-shown):matches([value*=\W])]:block" 
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="transition-colors duration-300 peer-[&:not(:placeholder-shown):matches([value*=\W])]:text-green-500">
+                            One special character
+                        </span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Confirm Password field -->
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.password2.id_for_label }}">
+                {{ form.password2.label }}
+            </label>
+            <input type="password" 
+                   name="{{ form.password2.html_name }}"
+                   id="{{ form.password2.id_for_label }}"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.password2.errors %}border-red-500{% endif %}"
+                   required>
+            {% if form.password2.errors %}
+            <div class="mt-1 text-red-600 text-sm">
+                {% for error in form.password2.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Sign Up
+        </button>
+    </form>
+</div>
+{% endblock %}

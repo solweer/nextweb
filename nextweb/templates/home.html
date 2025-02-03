@@ -1,0 +1,18 @@
+<!-- home.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <div style="color: #333;">
+        <h2>Welcome to the Homepage</h2>
+        {% if user.is_authenticated %}
+            <p>Hello {{ user.email }}!</p>
+            <a href="{% url 'logout' %}" style="color: blue;">Logout</a>
+        {% else %}
+            <p>Please log in or sign up to continue</p>
+            <div>
+                <a href="{% url 'login' %}" style="color: blue;">Login</a> | 
+                <a href="{% url 'signup' %}" style="color: blue;">Sign Up</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
