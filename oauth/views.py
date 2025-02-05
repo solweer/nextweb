@@ -120,7 +120,6 @@ class OAuthLoginView(View):
             scope=oauth_config["scopes"]
         )
         authorization_url, state = oauth.authorization_url(oauth_config["authorization_url"])
-
         request.session[f"{platform}_oauth_state"] = state
         request.session.modified = True
 

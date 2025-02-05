@@ -6,7 +6,7 @@ OAUTH_CONFIG = {
         "client_secret": secret.TWITTER_CLIENT_SECRET,
         "authorization_url": "https://twitter.com/i/oauth2/authorize",
         "token_url": "https://api.twitter.com/2/oauth2/token",
-        "redirect_uri": secret.TWITTER_REDIRECT_URI,
+        "redirect_uri": "http://127.0.0.1:8000/x/callback/",  
         "callback_url": secret.TWITTER_REDIRECT_URI,
         "scopes": [
             "tweet.read",
@@ -15,3 +15,5 @@ OAUTH_CONFIG = {
         ],
     },
 }
+
+
