@@ -141,7 +141,7 @@ class LinkedInCallbackView(View):
                 raise Exception(f"Failed to fetch LinkedIn profile: {profile_response.text}")
                 
             profile_data = profile_response.json()
-            linkedin_id = profile_data.get('sub')  # OpenID Connect uses 'sub' for user ID
+            linkedin_id = profile_data.get('sub') 
             
             if not linkedin_id:
                 raise Exception("Could not retrieve LinkedIn member ID")
@@ -150,13 +150,10 @@ class LinkedInCallbackView(View):
                 name="linkedin",
                 defaults={"base_url": "https://api.linkedin.com/v2/"}
             )[0]
-
-            # Check if the LinkedIn ID is already connected to another user
             existing_profile = Userprofile.objects.filter(linkedin_id=linkedin_id).first()
 
             if existing_profile:
                 if existing_profile.user != request.user:
-                    # Allow user to disconnect LinkedIn account from another user
                     existing_profile.linkedin_id = None
                     existing_profile.save()
 
@@ -169,14 +166,11 @@ class LinkedInCallbackView(View):
                         request,
                         "Your LinkedIn account is already connected."
                     )
-            # Update or create the current user profile with the LinkedIn ID
             user_profile = request.user.userprofile
             user_profile.linkedin_id = linkedin_id
             if profile_data.get('name'):
                 user_profile.name = profile_data.get('name')
             user_profile.save()
-            
-            # Create or update OAuth token record
             oauth_token = OAuthToken.objects.update_or_create(
                 user=user_profile,
                 provider=linkedin_provider,
