@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import HomeView, SignupView,LoginView,LogoutView,DashboardView
 from .linkedin_views import LinkedInLoginView, LinkedInCallbackView, LinkedInPostView, LinkedInLogoutView
+
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('signup/', SignupView.as_view(), name='signup'),

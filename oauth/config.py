@@ -11,7 +11,7 @@ OAUTH_CONFIG = {
         "scopes": [
             "openid",               
             "profile",             
-            "w_member_social",       #
+            "w_member_social",       
             "email",               
         ],
     },
