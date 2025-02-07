@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-<pre>{{ platforms|default:"No data" }}</pre>
 
 {% block content %}
 <div class="container mx-auto p-6">
@@ -32,14 +31,22 @@
                     <span class="px-2 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">Not Connected</span>
                 {% endif %}
             </div>
-            
             {% if platform.is_connected %}
-                <div class="text-sm text-gray-600">
+                <div class="text-sm text-gray-600 mb-4">
                     <p>Connected: {{ platform.connected_at|date:"F j, Y" }}</p>
-                    <p>Expires: {{ platform.expires_at|date:"F j, Y" }}</p>
+                    {% if platform.expires_at %}
+                        <p>Expires: {{ platform.expires_at|date:"F j, Y" }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex justify-end">
+                    <a href="{% url 'linkedin-disconnect' %}" 
+                       class="inline-block px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors duration-200"
+                       onclick="return confirm('Are you sure you want to disconnect your {{ platform.name }} account?')">
+                        Disconnect
+                    </a>
                 </div>
             {% else %}
-                <a href="{% url 'oauth_login' platform_id %}" 
+                <a href="{% url 'linkedin-login' %}" 
                    class="mt-2 inline-block px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-200">
                     Connect Account
                 </a>
@@ -52,7 +59,7 @@
     {% if total_connections > 0 %}
     <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-xl font-bold mb-6">Create Post</h2>
-        <form method="post" action="{% url 'post_now' %}" class="space-y-6">
+        <form method="post" action="{% url 'linkedin-post' %}" class="space-y-6">
             {% csrf_token %}
             
             <div>
@@ -61,7 +68,7 @@
                     name="content"
                     rows="4"
                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="What's on your mind?"
+                    placeholder="What would you like to share?"
                     required
                 ></textarea>
             </div>
@@ -75,7 +82,8 @@
                             <input type="checkbox" 
                                    name="platforms" 
                                    value="{{ platform_id }}"
-                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                   {% if platform_id == 'linkedin' %}checked{% endif %}>
                             <span class="ml-2">{{ platform.name }}</span>
                         </label>
                         {% endif %}

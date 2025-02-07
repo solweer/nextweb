@@ -1,19 +1,18 @@
 from nextweb import secret
 
 OAUTH_CONFIG = {
-    "twitter": {
-        "client_id": secret.TWITTER_CLIENT_ID,
-        "client_secret": secret.TWITTER_CLIENT_SECRET,
-        "authorization_url": "https://twitter.com/i/oauth2/authorize",
-        "token_url": "https://api.twitter.com/2/oauth2/token",
-        "redirect_uri": "http://127.0.0.1:8000/x/callback/",  
-        "callback_url": secret.TWITTER_REDIRECT_URI,
+    "linkedin": {
+        "client_id": secret.LINKEDIN_CLIENT_ID,
+        "client_secret": secret.LINKEDIN_CLIENT_SECRET,
+        "authorization_url": "https://www.linkedin.com/oauth/v2/authorization",
+        "token_url": "https://www.linkedin.com/oauth/v2/accessToken",
+        "redirect_uri": "http://127.0.0.1:8000/linkedin/callback/",  
+        "callback_url": secret.LINKEDIN_REDIRECT_URI,
         "scopes": [
-            "tweet.read",
-            "users.read",
-            "offline.access",
+            "openid",               
+            "profile",             
+            "w_member_social",       #
+            "email",               
         ],
     },
 }
-
-
