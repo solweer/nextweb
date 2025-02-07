@@ -70,7 +70,7 @@ class DashboardView(View):
             return redirect('login')
 
         try:
-            user_profile = UserProfile.objects.get(user=request.user)
+            user_profile = request.user.Userprofile
         except UserProfile.DoesNotExist:
             messages.error(request, "Please complete your registration.")
             return redirect('home')
