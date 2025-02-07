@@ -48,48 +48,28 @@ class LinkedInCallbackView(View):
                 raise Exception(f"Failed to fetch LinkedIn profile: {profile_response.text}")
                 
             profile_data = profile_response.json()
-            linkedin_id = profile_data.get('sub') 
+            external_user_id = profile_data.get('sub')  
             
-            if not linkedin_id:
+            if not external_user_id:
                 raise Exception("Could not retrieve LinkedIn member ID")
             
-            existing_profile = UserProfile.objects.filter(external_user_id=linkedin_id).first()
-
-            if existing_profile and existing_profile.user != request.user:
-                existing_profile.external_user_id = None
-                existing_profile.save()
-                messages.success(
-                    request,
-                    "Your LinkedIn account was previously connected to another user. It has now been disconnected."
-                )
-            else:
-                messages.info(
-                    request,
-                    "Your LinkedIn account is already connected."
-                )
-
-            user_profile = request.user.userprofile
-            user_profile.external_user_id = linkedin_id
-            if profile_data.get('name'):
-                user_profile.name = profile_data.get('name')
-            user_profile.save()
-
+            user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            
             OAuthToken.objects.update_or_create(
                 user=user_profile,
                 provider='linkedin', 
                 defaults={
+                    'external_user_id': external_user_id,
                     'access_token': token['access_token'],
                     'refresh_token': token.get('refresh_token', ''),
                     'expires_at': expires_at,
                     'scope': ' '.join(token.get('scope', []))
                 }
             )
-            
-            messages.success(request, "LinkedIn connected successfully!")
 
+            messages.success(request, "LinkedIn connected successfully!")
         except Exception as e:
-            messages.error(request, f"Error connecting LinkedIn: {str(e)}")
-            
+            messages.error(request, f"Error connecting LinkedIn: {str(e)}")           
         return redirect('dashboard')
 
 class LinkedInPostView(View):
@@ -100,9 +80,9 @@ class LinkedInPostView(View):
             return redirect('linkedin-post')
         
         try:
-            user_profile = request.user.userprofile
+            user_profile = UserProfile.objects.get(user=request.user)
             token = OAuthToken.objects.get(user=user_profile, provider='linkedin')
-
+            
             verify_url = 'https://api.linkedin.com/v2/userinfo'
             headers = {
                 'Authorization': f'Bearer {token.access_token}',
@@ -118,8 +98,9 @@ class LinkedInPostView(View):
                 'X-Restli-Protocol-Version': '2.0.0',
                 'Content-Type': 'application/json',
             })
+
             post_data = {
-                "author": f"urn:li:person:{user_profile.external_user_id}",
+                "author": f"urn:li:person:{token.external_user_id}",
                 "lifecycleState": "PUBLISHED",
                 "specificContent": {
                     "com.linkedin.ugc.ShareContent": {
@@ -133,12 +114,13 @@ class LinkedInPostView(View):
                     "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
                 }
             }
+
             post_status = PostStatus.objects.create(
-            user=user_profile,
-            platform='linkedin',
-            content=content,
-            status='pending',
-            access_token=token.access_token  
+                user=user_profile,
+                platform='linkedin',
+                content=content,
+                status='pending',
+                access_token=token.access_token  
             )
 
             response = requests.post(
@@ -175,13 +157,11 @@ class LinkedInLogoutView(View):
             return redirect('login')
 
         try:
-            user_profile = request.user.userprofile
+            user_profile = UserProfile.objects.get(user=request.user)
             token = OAuthToken.objects.filter(user=user_profile, provider='linkedin').first()
 
             if token:
                 token.delete()
-                user_profile.external_user_id = None
-                user_profile.save()
                 messages.success(request, "Successfully disconnected from LinkedIn.")
             else:
                 messages.info(request, "No active LinkedIn connection found.")

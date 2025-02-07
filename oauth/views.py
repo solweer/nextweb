@@ -70,12 +70,12 @@ class DashboardView(View):
             return redirect('login')
 
         try:
-            user_profile = request.user.userprofile
+            user_profile = UserProfile.objects.get(user=request.user)
         except UserProfile.DoesNotExist:
             messages.error(request, "Please complete your registration.")
             return redirect('home')
 
-        connections = OAuthToken.objects.filter(user=request.user.userprofile)
+        connections = OAuthToken.objects.filter(user=user_profile)
         platforms_status = self._get_platforms_status(connections)
 
         return render(request, 'dashboard.html', {
@@ -95,4 +95,3 @@ class DashboardView(View):
                 status[platform]['connected_at'] = conn.created_at
 
         return status
-    
