@@ -48,9 +48,9 @@ class LinkedInCallbackView(View):
                 raise Exception(f"Failed to fetch LinkedIn profile: {profile_response.text}")
                 
             profile_data = profile_response.json()
-            external_user_id = profile_data.get('sub')  
+            provider_user_id = profile_data.get('sub')  
             
-            if not external_user_id:
+            if not provider_user_id:
                 raise Exception("Could not retrieve LinkedIn member ID")
             
             user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -59,7 +59,7 @@ class LinkedInCallbackView(View):
                 user=user_profile,
                 provider='linkedin', 
                 defaults={
-                    'external_user_id': external_user_id,
+                    'provider_user_id': provider_user_id,
                     'access_token': token['access_token'],
                     'refresh_token': token.get('refresh_token', ''),
                     'expires_at': expires_at,
@@ -100,7 +100,7 @@ class LinkedInPostView(View):
             })
 
             post_data = {
-                "author": f"urn:li:person:{token.external_user_id}",
+                "author": f"urn:li:person:{token.provider_user_id}",
                 "lifecycleState": "PUBLISHED",
                 "specificContent": {
                     "com.linkedin.ugc.ShareContent": {
