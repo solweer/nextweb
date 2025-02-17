@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'oauth',
+    'dashboard'
 ]
 
 
@@ -73,7 +74,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'nextweb.urls'
-import os
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
