@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import OAuthToken, UserProfile
+from .models import OAuthToken, PostStatus, UserProfile
 from .config import OAUTH_CONFIG
 
 class HomeView(View):
@@ -64,3 +64,15 @@ class LogoutView(View):
         auth_logout(request)
         return redirect('login')
 
+class RecentPostsView(View):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        user_profile = UserProfile.objects.get(user=request.user)
+        recent_posts = PostStatus.objects.filter(user=user_profile).order_by('-created_at')
+
+        return render(request, "recent_posts.html", {
+            "recent_posts": recent_posts
+        })
+    

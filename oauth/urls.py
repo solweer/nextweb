@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomeView, SignupView,LoginView,LogoutView
+from .views import HomeView, RecentPostsView, SignupView,LoginView,LogoutView 
 from .linkedin_views import LinkedInLoginView, LinkedInCallbackView, LinkedInPostView, LinkedInLogoutView
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('linkedin/callback/', LinkedInCallbackView.as_view(), name='linkedin-callback'),
     path('linkedin/post/',LinkedInPostView.as_view(), name='linkedin-post'),
     path('linkedin/disconnect/', LinkedInLogoutView.as_view(), name='linkedin-disconnect'),
+    path('recent-posts/', RecentPostsView.as_view(), name="recent-posts"),
 ]
