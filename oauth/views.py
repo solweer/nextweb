@@ -75,4 +75,4 @@ class RecentPostsView(View):
         return render(request, "recent_posts.html", {
             "recent_posts": recent_posts
         })
-    
+

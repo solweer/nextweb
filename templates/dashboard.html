@@ -2,6 +2,7 @@
 
 {% block content %}
 {% include 'partials/modal.html' %}
+
 <div class="container mx-auto p-6">
 
     <!-- Account Info -->
@@ -11,78 +12,92 @@
         <p class="text-sm text-gray-500">Account created: {{ account_created|date:"F j, Y" }}</p>
     </div>
 
+    <!-- Social Media Connections Section -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">Connected Platforms</h2>
+        <p class="text-gray-600 mb-4">Connect your social media accounts to manage all your posts in one place.</p>
+
+        <div class="flex justify-end mt-4">
+            <a href="{% url 'socialmedialogin' %}" 
+               class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition duration-200">
+                Login
+            </a>
+        </div>
+
+        <div class="mt-4">
+            <p class="text-sm text-gray-500">Total connected platforms: {{ total_connections }}/{{ platforms|length }}</p>
+        </div>
+    </div>
 
     <!-- Post Form -->
-    {% if True %}
-    <div class="bg-white rounded-lg shadow p-6">
+    {% if total_connections > 0 %}
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
         <h2 class="text-xl font-bold mb-6">Create Post</h2>
-        <form method="post" action="{% url 'linkedin-post' %}" class="space-y-6">
+
+        <!-- Generate with AI Button -->
+        <a onclick="document.getElementById('dialogModal').showModal()" 
+           class="bg-blue-600 p-2 px-4 text-white rounded-full cursor-pointer mb-4 inline-block">
+            Generate with AI
+        </a>
+
+        <form method="post" action="{% url 'twitter_post' %}" id="post-form">
             {% csrf_token %}
-            <a onclick="document.getElementById('dialogModal').showModal()" 
-            class="bg-blue-600 p-2 px-4 text-white rounded-full cursor-pointer">
-                Generate with AI
-            </a>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                <textarea 
-                    name="content"
+
+            <!-- Message Input -->
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Write your post</label>
+                <textarea name="content" id="post-content"
                     rows="4"
                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="What would you like to share?"
-                    required
-                ></textarea>
+                    placeholder="What's on your mind?" required></textarea>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select Platforms <span class="text-red-500">*</span></label>
-                <div class="space-y-2">
-                    {% for platform_id, platform in platforms.items %}
-                        {% if platform.is_connected %}
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" 
-                                name="platforms" 
-                                value="{{ platform_id }}"
-                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                {% if platform_id == 'linkedin' %}checked{% endif %}
-                                {% if forloop.first %}required{% endif %}>
-                            <span class="ml-2">{{ platform.name }}</span>
-                        </label>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                {% if error_message %}
-                    <p class="text-red-500 text-sm mt-1">{{ error_message }}</p>
-                {% endif %}
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit"
+            <!-- Submit Buttons -->
+            <div class="flex justify-end space-x-3 mt-4">
+                <button type="submit" id="twitter-btn"
                         class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    Post Now
+                    Post to Twitter
+                </button>
+                
+                <button type="submit" id="linkedin-btn" formaction="{% url 'linkedin-post' %}"
+                        class="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
+                    Post to LinkedIn
                 </button>
             </div>
         </form>
     </div>
     {% else %}
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 flex justify-between items-center">
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
         <p class="text-sm text-yellow-700">
-            Connect at least one platform to start posting.
+            Connect at least one platform above to start posting.
         </p>
-        <a href="{% url 'linkedin-login' %}"
-           class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition">
-            Connect Now
-        </a>
     </div>
     {% endif %}
 
-    <!-- recent posts view -->
+    <!-- Recent Posts -->
+    {% if platforms.twitter.is_connected %}
     <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-xl font-bold mb-4">Recent Posts</h2>
+        {% if platforms.twitter.recent_posts %}
+            <div class="space-y-4 mb-4">
+                {% for post in platforms.twitter.recent_posts %}
+                <div class="border rounded p-3">
+                    <p>{{ post.content }}</p>
+                    <div class="text-sm text-gray-500 mt-2">
+                        Posted on Twitter - {{ post.created_at|date:"F j, Y g:i A" }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">No recent posts found.</p>
+        {% endif %}
+
         <a href="{% url 'recent-posts' %}" class="inline-block mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded">
             View All Recent Posts
         </a>
     </div>
-    
-
+    {% endif %}
 </div>
+
 {% endblock %}
