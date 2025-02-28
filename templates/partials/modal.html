@@ -1,0 +1,49 @@
+<dialog id="dialogModal" class="p-6 bg-white rounded-lg shadow-lg w-96">
+    <form method="dialog" class="space-y-4">
+        <h2 class="text-lg font-semibold text-gray-700">Enter Business Details</h2>
+        
+        <!-- Business Name -->
+        <div>
+            <label for="businessName" class="block text-sm font-medium text-gray-600">Business Name</label>
+            <input type="text" id="businessName" name="businessName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Industry -->
+        <div>
+            <label for="industry" class="block text-sm font-medium text-gray-600">Industry</label>
+            <input type="text" id="industry" name="industry" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Number of Followers -->
+        <div>
+            <label for="followers" class="block text-sm font-medium text-gray-600">Number of Followers</label>
+            <input type="number" id="followers" name="followers" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Platform Name -->
+        <div>
+            <label for="platform" class="block text-sm font-medium text-gray-600">Platform Name</label>
+            <select id="platform" name="platform" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="linkedin" selected>LinkedIn</option>
+                <option value="twitter">Twitter</option>
+                <option value="instagram">Instagram</option>
+            </select>
+        </div>
+
+        <!-- Number of Content Ideas -->
+        <div>
+            <label for="contentIdeas" class="block text-sm font-medium text-gray-600">Number of Content Ideas</label>
+            <input type="number" id="contentIdeas" name="contentIdeas" value="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-2">
+            <button type="button" onclick="document.getElementById('dialogModal').close()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-100">
+                Cancel
+            </button>
+            <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                Submit
+            </button>
+        </div>
+    </form>
+</dialog>

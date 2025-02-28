@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
@@ -5,8 +6,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import OAuthToken, UserProfile
+from .models import OAuthToken, PostStatus, UserProfile
 from .config import OAUTH_CONFIG
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 class HomeView(View):
     def get(self, request):
@@ -64,34 +66,55 @@ class LogoutView(View):
         auth_logout(request)
         return redirect('login')
 
-class DashboardView(View):
+class RecentPostsView(View):
     def get(self, request):
         if not request.user.is_authenticated:
             return redirect('login')
 
+        user_profile = UserProfile.objects.get(user=request.user)
+        
+        # Get filter parameters
+        platform = request.GET.get('platform', '')
+        date_range = request.GET.get('date_range', '')
+        
+        # Start with all user posts
+        posts_query = PostStatus.objects.filter(user=user_profile)
+        
+        # Apply platform filter
+        if platform:
+            posts_query = posts_query.filter(platform=platform)
+            
+        # Apply date filter
+        if date_range:
+            today = timezone.now().date()
+            if date_range == 'today':
+                posts_query = posts_query.filter(created_at__date=today)
+            elif date_range == 'week':
+                start_of_week = today - timezone.timedelta(days=today.weekday())
+                posts_query = posts_query.filter(created_at__date__gte=start_of_week)
+            elif date_range == 'month':
+                posts_query = posts_query.filter(
+                    created_at__year=today.year,
+                    created_at__month=today.month
+                )
+        
+        # Order by most recent first
+        recent_posts = posts_query.order_by('-created_at')
+        
+         # Pagination
+        paginator = Paginator(recent_posts, 10)  
+        page = request.GET.get('page', 1)  # Default to first page
+
         try:
-            user_profile = request.user.userprofile
-        except UserProfile.DoesNotExist:
-            messages.error(request, "Please complete your registration.")
-            return redirect('home')
+            paginated_posts = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_posts = paginator.page(1)
+        except EmptyPage:
+            paginated_posts = paginator.page(paginator.num_pages)
 
-        connections = OAuthToken.objects.filter(user=user_profile)
-        platforms_status = self._get_platforms_status(connections)
-
-        return render(request, 'dashboard.html', {
-            'user': request.user,
-            'platforms': platforms_status,
-            'total_connections': connections.count(),
-            'account_created': request.user.date_joined
+        return render(request, "recent_posts.html", {
+            "recent_posts": paginated_posts,
+            "selected_platform": platform,
+            "selected_date_range": date_range,
+            "is_paginated": paginated_posts.has_other_pages()
         })
-
-    def _get_platforms_status(self, connections):
-        status = {platform: {'name': platform.capitalize(), 'is_connected': False} for platform in OAUTH_CONFIG.keys()}
-
-        for conn in connections:
-            platform = conn.provider
-            if platform in status:
-                status[platform]['is_connected'] = True
-                status[platform]['connected_at'] = conn.created_at
-
-        return status
