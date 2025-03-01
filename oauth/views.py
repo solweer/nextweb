@@ -6,8 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import OAuthToken, PostStatus, UserProfile
-from .config import OAUTH_CONFIG
+from .models import PostStatus, UserProfile
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 class HomeView(View):
@@ -76,6 +75,7 @@ class RecentPostsView(View):
         # Get filter parameters
         platform = request.GET.get('platform', '')
         date_range = request.GET.get('date_range', '')
+        status = request.GET.get('status', '')  # Add status filter parameter
         
         # Start with all user posts
         posts_query = PostStatus.objects.filter(user=user_profile)
@@ -98,10 +98,14 @@ class RecentPostsView(View):
                     created_at__month=today.month
                 )
         
+        # Apply status filter
+        if status:
+            posts_query = posts_query.filter(status=status)
+        
         # Order by most recent first
         recent_posts = posts_query.order_by('-created_at')
         
-         # Pagination
+        # Pagination
         paginator = Paginator(recent_posts, 10)  
         page = request.GET.get('page', 1)  # Default to first page
 
@@ -116,5 +120,6 @@ class RecentPostsView(View):
             "recent_posts": paginated_posts,
             "selected_platform": platform,
             "selected_date_range": date_range,
+            "selected_status": status,  # Add this to pass to template
             "is_paginated": paginated_posts.has_other_pages()
         })

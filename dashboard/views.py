@@ -21,13 +21,19 @@ class DashboardView(View):
             if request.path != '/connect/':
                 return redirect('socialmedialogin')
 
-        # Twitter-specific logic
-        recent_posts = []
+        # twitter platform
         if platforms_status.get('twitter', {}).get('is_connected'):
-            recent_posts = PostStatus.objects.filter(
+            twitter_posts = PostStatus.objects.filter(
                 user=user_profile, platform='twitter' 
-            ).order_by('-created_at')[:10]
-            platforms_status['twitter']['recent_posts'] = recent_posts
+            ).order_by('-created_at')[:3]
+            platforms_status['twitter']['recent_posts'] = twitter_posts
+
+        # linkedin platform
+        if platforms_status.get('linkedin', {}).get('is_connected'):
+            linkedin_posts = PostStatus.objects.filter(
+                user=user_profile, platform='linkedin'
+            ).order_by('-created_at')[:3]
+            platforms_status['linkedin']['recent_posts'] = linkedin_posts
 
         return render(request, 'dashboard.html', {
             'user': request.user,
@@ -36,6 +42,29 @@ class DashboardView(View):
             'account_created': request.user.date_joined
         })
     
+   #checkbox code 
+    def post(self, request):
+        """Redirect to the correct post view based on selected platforms."""
+        selected_platforms = request.POST.getlist("platforms")
+        if not selected_platforms:
+            messages.error(request, "Please select at least one platform to post.")
+            return redirect("dashboard")
+
+        # Redirect to LinkedInPostView if only LinkedIn is selected
+        if selected_platforms == ["linkedin"]:
+            return redirect("linkedin-post")
+
+        # Redirect to TwitterPostView if only Twitter is selected
+        elif selected_platforms == ["twitter"]:
+            return redirect("twitter_post")
+
+        # Handle multiple selections (LinkedIn + Twitter)
+        elif "linkedin" in selected_platforms and "twitter" in selected_platforms:
+            request.session["post_content"] = request.POST.get("content", "").strip()
+            return redirect("multi-post")  # A new view to handle multi-platform posts
+
+        return redirect("dashboard")
+
     def _get_platforms_status(self, connections):
         status = {platform: {'name': platform.capitalize(), 'is_connected': False} for platform in OAUTH_CONFIG.keys()}
 
