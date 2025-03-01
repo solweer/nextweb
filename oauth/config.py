@@ -15,6 +15,7 @@ OAUTH_CONFIG = {
             "email",               
         ],
     },
+    
     "twitter": {
         "client_id": secret.TWITTER_CLIENT_ID,
         "client_secret": secret.TWITTER_CLIENT_SECRET,

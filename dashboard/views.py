@@ -3,6 +3,7 @@ from django.views import View
 from django.contrib import messages
 from oauth.config import OAUTH_CONFIG
 from oauth.models import OAuthToken, PostStatus, UserProfile
+from django.http import HttpResponseForbidden
 
 class DashboardView(View):
     def get(self, request):
@@ -75,3 +76,4 @@ class DashboardView(View):
                 status[platform]['connected_at'] = conn.created_at
 
         return status  
+

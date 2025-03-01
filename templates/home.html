@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="bg-gradient-to-b from-indigo-50 to-white min-h-screen">
+<div class="bg-gradient-to-b from-indigo-50 to-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <!-- Hero Section -->
     <div class="text-center mb-16">
-      <h1 class="text-5xl font-extrabold text-gray-900 tracking-tight mb-4">Social Media Management<br><span class="text-indigo-600">Simplified</span></h1>
-      <p class="max-w-2xl mx-auto text-xl text-gray-600 mb-8">Manage all your social media accounts in one place with AI-powered content generation.</p>
+      <h1 class="text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+        Automate. Engage. Grow.<br>
+        <span class="text-indigo-600 text-3xl font-bold">The Future of Social Media Scheduling.</span>
+      </h1>
+      <p class="max-w-2xl mx-auto text-xl text-gray-600 mb-8">
+        Stay ahead of the curve with automated scheduling that works while you don't.
+      </p>
       
       {% if user.is_authenticated %}
         <div class="inline-flex rounded-md shadow">
@@ -126,6 +131,6 @@
         {% endif %}
       </div>
     </div>
-
-
+  </div>
+</div>
 {% endblock %}
