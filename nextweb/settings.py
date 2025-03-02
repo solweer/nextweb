@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Rest of your settings...
 from pathlib import Path
@@ -29,7 +28,7 @@ SECRET_KEY = 'django-insecure-rgc2$e0=vmonv17dc(!6fg!yg6x^g2p^v0-9+89s*o-jacek7c
 DEBUG = True
 
 ALLOWED_HOSTS = ["nextweb-8ydu.onrender.com","https://nextweb-8ydu.onrender.com"]
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+CSRF_TRUSTED_ORIGINS = ["https://nextweb-8ydu.onrender.com"]
 
 # Application definition
 
