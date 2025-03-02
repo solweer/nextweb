@@ -1,3 +1,4 @@
+import json
 from django.views import View
 from django.shortcuts import redirect, render
 from django.http import JsonResponse, HttpResponseRedirect
@@ -10,6 +11,7 @@ import hashlib
 import os
 from .models import UserProfile, OAuthToken, PostStatus
 from .config import OAUTH_CONFIG
+from django.contrib import messages
 
 class TwitterLoginView(View):
     """
@@ -89,12 +91,12 @@ class TwitterCallbackView(View):
             'Content-Type': 'application/x-www-form-urlencoded',
         }
         
-        # For Twitter, use Basic Auth with client_id:client_secret
+        # use Basic Auth with client_id:client_secret
         if config.get('client_secret'):
             auth_string = f"{config['client_id']}:{config['client_secret']}"
             encoded_auth = base64.b64encode(auth_string.encode('utf-8')).decode('utf-8')
             headers['Authorization'] = f"Basic {encoded_auth}"
-            # Remove client_secret from request body when using Basic Auth
+
             if 'client_secret' in token_data:
                 del token_data['client_secret']
         
@@ -137,16 +139,13 @@ class TwitterCallbackView(View):
             scope=token_info.get('scope')
         )
         
-        # Set user in session for authentication
         request.session['user_id'] = user_profile.user.id
         
-        # Clear OAuth session data
         if 'twitter_code_verifier' in request.session:
             del request.session['twitter_code_verifier']
         if 'twitter_oauth_state' in request.session:
             del request.session['twitter_oauth_state']
         
-        # Redirect to home page or dashboard
         return redirect('dashboard')
     
     def _get_twitter_user_info(self, access_token):
@@ -163,7 +162,6 @@ class TwitterCallbackView(View):
             params={'user.fields': 'name,username,profile_image_url'}
         )
         
-        # Log user info response for debugging (remove in production)
         print(f"User Info Response: {response.status_code}")
         print(f"User Info Body: {response.text}")
         
@@ -193,14 +191,13 @@ class TwitterCallbackView(View):
             user_profile = UserProfile.objects.get(email=email)
             print(f"Found user profile by Twitter email placeholder: {email}")
         except UserProfile.DoesNotExist:
-            # Create a new user and profile
             from django.contrib.auth.models import User
             username = f"twitter_{user_info.get('id')}"
             
             user = User.objects.create_user(
                 username=username,
                 email=email,
-                password=os.urandom(16).hex()  # Random password, user can't login directly
+                password=os.urandom(16).hex()
             )
             
             user_profile = UserProfile.objects.create(
@@ -255,26 +252,55 @@ class TwitterPostView(View):
     """
     Posts a tweet using the user's Twitter OAuth token
     """
+    # Twitter's character limit
+    TWITTER_CHAR_LIMIT = 280
+    
+    def get(self, request):
+        return render(request, 'dashboard')
+        
     def post(self, request):
-        # Manual authentication check
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                content = data.get('content')
+            except json.JSONDecodeError:
+                messages.error(request, 'Invalid JSON')
+                return HttpResponseRedirect(reverse('dashboard'))
+        else:
+            # Handle form data
+            content = request.POST.get('content')
+        
+        if not content:
+            messages.error(request, 'Content is required')
+            return HttpResponseRedirect(reverse('dashboard'))
+            
+        #validate character limit
+        if len(content) > self.TWITTER_CHAR_LIMIT:
+            messages.error(
+                request, 
+                f'Content exceeds Twitter\'s {self.TWITTER_CHAR_LIMIT} character limit. '
+                f'Current length: {len(content)}'
+            )
+            return HttpResponseRedirect(reverse('dashboard'))
+        
+        # Auth check
         user_id = request.session.get('user_id')
         if not user_id:
-            return JsonResponse({'error': 'Authentication required'}, status=401)
+            messages.error(request, 'Authentication required')
+            return HttpResponseRedirect(reverse('login'))
         
         from django.contrib.auth.models import User
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=401)
-        
-        content = request.POST.get('content')
-        if not content:
-            return JsonResponse({'error': 'Content is required'}, status=400)
+            messages.error(request, 'User not found')
+            return HttpResponseRedirect(reverse('login'))
         
         try:
             user_profile = UserProfile.objects.get(user=user)
         except UserProfile.DoesNotExist:
-            return JsonResponse({'error': 'User profile not found'}, status=400)
+            messages.error(request, 'User profile not found')
+            return HttpResponseRedirect(reverse('dashboard'))
         
         try:
             token = OAuthToken.objects.get(
@@ -282,16 +308,19 @@ class TwitterPostView(View):
                 provider='twitter'
             )
         except OAuthToken.DoesNotExist:
-            return JsonResponse({'error': 'Twitter not connected'}, status=400)
+            messages.error(request, 'Twitter not connected')
+            return HttpResponseRedirect(reverse('dashboard'))
         
-        # Check if token is expired and refresh if needed
+        # if token is expired and refresh if needed
         if token.expires_at and token.expires_at < timezone.now():
             if not token.refresh_token:
-                return JsonResponse({'error': 'Token expired and no refresh token available'}, status=400)
+                messages.error(request, 'Token expired and no refresh token available')
+                return HttpResponseRedirect(reverse('dashboard'))
             
             success = self._refresh_token(token)
             if not success:
-                return JsonResponse({'error': 'Failed to refresh token'}, status=400)
+                messages.error(request, 'Failed to refresh token')
+                return HttpResponseRedirect(reverse('dashboard'))
         
         # Create post status record
         post_status = PostStatus.objects.create(
@@ -302,19 +331,19 @@ class TwitterPostView(View):
             access_token=token.access_token
         )
         
-        # Post to Twitter
         success, post_id, error = self._post_to_twitter(token.access_token, content)
-        
-        # Update post status
+        #update post status
         post_status.status = 'posted' if success else 'failed'
         post_status.post_id = post_id
         post_status.error_message = error
         post_status.save()
         
         if success:
-            return JsonResponse({'success': True, 'post_id': post_id})
+            messages.success(request, 'Tweet posted successfully!')
         else:
-            return JsonResponse({'error': error}, status=400)
+            messages.error(request, f'Failed to post tweet: {error}')
+            
+        return HttpResponseRedirect(reverse('dashboard'))
         
     def _refresh_token(self, token):
         """
@@ -361,6 +390,10 @@ class TwitterPostView(View):
         """
         Post a tweet using Twitter API v2
         """
+        # Double-check length as a safeguard
+        if len(content) > self.TWITTER_CHAR_LIMIT:
+            return False, None, f"Content exceeds Twitter's {self.TWITTER_CHAR_LIMIT} character limit"
+            
         headers = {
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
@@ -382,8 +415,7 @@ class TwitterPostView(View):
         else:
             error_message = f"Error {response.status_code}: {response.text}"
             return False, None, error_message
-
-
+        
 class TwitterLogoutView(View):
     """
     Disconnects Twitter from the user account by removing the OAuth token
@@ -411,4 +443,4 @@ class TwitterLogoutView(View):
             provider='twitter'
         ).delete()
         
-        return redirect('settings')
+        return redirect('dashboard')

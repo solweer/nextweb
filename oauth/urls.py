@@ -21,7 +21,7 @@ urlpatterns = [
     path('twitter/logout/', TwitterLogoutView.as_view(), name='twitter_logout'),
 
     path('recent-posts/', RecentPostsView.as_view(), name="recent-posts"), #recentposts.html
-    
+
     path('connect/', SocialMediaLoginView.as_view(), name='socialmedialogin'), #socialogin.html
 
 ]
