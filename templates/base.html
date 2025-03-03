@@ -21,26 +21,15 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     {% if request.user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-sm">
+                    <a href="{% url 'dashboard' %}" class="md:px-4 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-sm p-2 text-sm md:text-base">
                         Dashboard
                     </a>
                     {% endif %}
                     {% if request.user.is_authenticated %}
-                    <a href="{% url 'socialmedialogin' %}" class="px-4 py-2 border border-indigo-600 text-indigo-800 rounded-lg hover:border-indigo-700 transition-colors duration-200 shadow-sm">
+                    <a href="{% url 'socialmedialogin' %}" class="md:px-4 md:py-2 border border-indigo-600 text-indigo-800 rounded-lg hover:border-indigo-700 transition-colors duration-200 shadow-sm p-2 text-sm md:text-base">
                         Manage Accounts
                     </a>
                     {% endif %}
-                    <div class="relative">
-                        {% if request.user.is_authenticated %}
-                        <a href="{% url 'logout' %}" class="flex items-center text-gray-700 hover:text-indigo-600 transition-colors duration-200">
-                        {% else %}
-                        <a href="{% url 'login' %}" class="flex items-center text-gray-700 hover:text-indigo-600 transition-colors duration-200">
-                        {% endif %}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
