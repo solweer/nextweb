@@ -38,7 +38,7 @@ Ensure that the output is **clear, well-structured, and tailored for the chosen 
         temperature=0.7,
         max_tokens=1024
     )
-    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Keep the word count around {int(word_count/5)}. Use emojis throughout the post. Prefix each point with ✅"
+    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Keep the word count around {int(word_count/5)}. Use emojis throughout the post. Prefix each unique title point with a relevant emoji. Prefix each sub-point with a ✅"
     return detailed_prompt
 
 def generate_final_post(detailed_prompt: str, platform: str, post_type: str, word_count: int) -> str:
@@ -92,7 +92,7 @@ def generate_social_post(request):
         post_type = request.POST.get("postType", "Personal")
         word_count = int(request.POST.get("wordCount", 350))
 
-        word_counts = {"twitter":280, "linkedin": 3000, "instagram": 2200, "blog": 10000}
+        word_counts = {"twitter":280, "linkedin": 3000, "whatsapp": 5000, "instagram": 2200, "blog": 10000}
         max_word_count = word_counts.get(platform, 3000)
         word_count = min(word_count, max_word_count)
 
