@@ -1,6 +1,6 @@
 <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 
-<dialog id="dialogModal" class="p-6 bg-white rounded-lg shadow-lg w-full max-w-screen-md">
+<dialog id="dialogModal" class="p-6 bg-white rounded-lg shadow-lg w-full lg:max-w-screen-md max-w-sm">
     <form 
         method="post"
         hx-post="{% url 'generate_social_post' %}" 
@@ -15,8 +15,8 @@
         <!-- Short Post Idea -->
         <div>
             <label for="postIdea" class="block text-sm font-medium text-gray-600">Short Post Idea</label>
-            <input type="text" id="postIdea" name="postIdea" required 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <textarea type="text" id="postIdea" name="postIdea" required 
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"> </textarea>
         </div>
 
         <!-- Purpose -->
@@ -57,7 +57,8 @@
             <label for="postType" class="block text-sm font-medium text-gray-600">Post Type</label>
             <select id="postType" name="postType"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="personal" selected>Personal</option>
+                <option value="event_announcement" selected>Event Announcement</option>
+                <option value="personal">Personal</option>
                 <option value="company_announcement">Company Announcement</option>
                 <option value="product_update">Product Update</option>
                 <option value="thought_leadership">Thought Leadership</option>
