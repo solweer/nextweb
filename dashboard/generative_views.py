@@ -51,7 +51,7 @@ def generate_final_post(detailed_prompt: str, platform: str, post_type: str, wor
     messages = [
         {"role": "system", "content":
          f"""
-You are an expert content writer specializing in **engaging, professional, and human-like social media posts** for {platform}.
+You are an expert content editor and writer specializing in **engaging, professional, and human-like social media posts** for {platform}.
 
 ### **Instructions**
 - Use the structured prompt to craft a compelling post.
@@ -60,11 +60,6 @@ You are an expert content writer specializing in **engaging, professional, and h
   - **Company Post (LinkedIn, Website, Press Release)** → Formal, authoritative, brand-aligned.
   - **Product Announcement (LinkedIn, Twitter, Facebook, Instagram, etc.)** → Promotional yet informative.
   - **Industry Thought Leadership (Medium, LinkedIn, Blog)** → Insightful, well-structured, expert tone.
-- Use **platform-specific formatting**:
-  - **LinkedIn** → Scannable paragraphs, emojis (if suitable), hashtags.
-  - **Twitter/X** → Concise, threaded if needed, impactful first line.
-  - **Instagram/Facebook** → Engaging, visual-friendly captions, hashtags.
-  - **Website/Blog** → Well-structured, SEO-friendly, in-depth content.
 
 ### **Structure**
 1️⃣ **Strong Opening Hook** (grabs attention).
@@ -108,7 +103,7 @@ def generate_social_post(request):
         final_post = generate_final_post(detailed_prompt, platform, post_type, word_count)
         end_final = time.perf_counter()
         print(f"Time taken for generate_final_post: {end_final - start_final:.4f} seconds")
-        
+        print(final_post)
         # Ensure the response is plain text so HTMX can replace the textarea content
         return HttpResponse(final_post, content_type="text/plain")
 
