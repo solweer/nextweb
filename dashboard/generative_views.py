@@ -42,7 +42,7 @@ Ensure that the output is **clear, well-structured, and tailored for the chosen 
         temperature=0.7,
         max_tokens=1024
     )
-    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Use emojis throughout the post. Prefix each bullet with a relevant emoji."
+    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Use emojis throughout the post. Prefix each bullet with a relevant emoji. The post language is strictly English."
     
     return detailed_prompt
 
@@ -72,7 +72,7 @@ You are an expert content writer specializing in **engaging, professional, and h
 3️⃣ **Call to Action (CTA)** (encourage engagement, sign-ups, comments).
 4️⃣ **Relevant Hashtags & Mentions** (if applicable).
 
-Ensure the post feels **authentic, platform-optimized, and valuable**. The post language is strictly English.
+Ensure the post feels **authentic, platform-optimized, and valuable**.
          """},
         {"role": "user", "content": detailed_prompt}
     ]

@@ -128,7 +128,8 @@
 <script src="https://cdn.jsdelivr.net/gh/cstayyab/markdown-to-unicode@main/dist/markdown-to-unicode.js"></script>
 <script>
     document.body.addEventListener("htmx:afterRequest", function(event) {
-      quill.root.innerHTML = MarkdownToUnicode(document.getElementById("post-content").innerHTML);
+        post=document.getElementById("post-content")
+        post.innerHTML = MarkdownToUnicode(post.innerHTML);
     });
 </script>
   
