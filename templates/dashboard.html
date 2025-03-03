@@ -45,11 +45,24 @@
                   name="content" 
                   id="post-content"
                   rows="4"
-                  class="w-full rounded-lg border border-gray-300 h-64 md:h-96 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500 resize-none transition duration-200"
+                  class="w-full rounded-lg border border-gray-300 h-64 md:h-96 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500 resize-none transition duration-200 hidden"
                   placeholder="What's on your mind?"
                   maxlength="10000"
                   required></textarea>
-            
+                  <div class="flex flex-col w-full rounded-xl shadow-sm">
+                    <div id="editor-container" ></div>
+                  </div>
+                <script>
+                  var quill = new Quill('#editor-container', {
+                      theme: 'snow',
+                      modules: { toolbar: [['bold', 'italic'], [{ list: 'ordered' }, { list: 'bullet' }]] }
+                  });
+          
+                  function syncQuillContent() {
+                      document.getElementById('post-content').value = quill.root.innerHTML;
+                  }
+              </script>
+                  
                 <small class="text-gray-500">Max 1000 characters.</small>
                 {% if form.content.errors %}
                   <div class="text-red-500 mt-1 text-sm">{{ form.content.errors }}</div>

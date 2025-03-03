@@ -22,16 +22,37 @@
 
         <!-- Short Post Idea -->
         <div>
-            <label for="postIdea" class="block text-sm font-medium text-gray-600">Short Post Idea</label>
+            <label for="postIdea" class="block text-sm font-medium text-gray-600">Prompt</label>
             <textarea type="text" id="postIdea" name="postIdea" required 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"> </textarea>
+                placeholder="Generate a..."
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
         </div>
 
+        <!-- Post Type -->
+        <div>
+            <label for="postType" class="block text-sm font-medium text-gray-600">Post For</label>
+            <select id="postType" name="postType"
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="personal" selected>Personal</option>
+                <option value="event">Event</option>
+                <option value="community">Community</option>
+                <option value="company">Company</option>
+                <option value="product">Product</option>
+            </select>
+        </div>
+        
         <!-- Purpose -->
         <div>
-            <label for="purpose" class="block text-sm font-medium text-gray-600">Purpose</label>
-            <input type="text" id="purpose" name="purpose" required
+            <label for="purpose" class="block text-sm font-medium text-gray-600">Post Type</label>
+            <select id="purpose" name="purpose"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="general" selected>General</option>
+                <option value="launch">Launch</option>
+                <option value="announcement">Announcement</option>
+                <option value="recap">Recap</option>
+                <option value="update">Update</option>
+                <option value="leadership">Leadership</option>
+            </select>
         </div>
 
         <!-- Platform -->
@@ -47,39 +68,23 @@
             </select>
         </div>
 
-        <!-- Role -->
-        <div>
-            <label for="role" class="block text-sm font-medium text-gray-600">Your Role</label>
-            <input type="text" id="role" name="role" required
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-
         <!-- Industry -->
         <div>
             <label for="industry" class="block text-sm font-medium text-gray-600">Industry</label>
-            <input type="text" id="industry" name="industry" required
+            <input type="text" id="industry" name="industry"
+                placeholder="Your industry"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-
-        <!-- Post Type -->
-        <div>
-            <label for="postType" class="block text-sm font-medium text-gray-600">Post Type</label>
-            <select id="postType" name="postType"
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="event_announcement" selected>Event Announcement</option>
-                <option value="personal">Personal</option>
-                <option value="company_announcement">Company Announcement</option>
-                <option value="product_update">Product Update</option>
-                <option value="thought_leadership">Thought Leadership</option>
-            </select>
         </div>
 
         <!-- Word Count -->
         <div>
-            <label for="wordCount" class="block text-sm font-medium text-gray-600">Approximate Character Count (will be overridden by platform specific limits)</label>
-            <input type="number" id="wordCount" name="wordCount" required min="50" max="10000"
-                value="350"
+            <label for="wordCount" class="block text-sm font-medium text-gray-600">Post Length</label>
+            <select id="wordCount" name="wordCount"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="250" selected>Moderate</option>
+                <option value="500">Long</option>
+                <option value="100">Short</option>
+            </select>
         </div>
 
         <!-- Buttons -->
@@ -123,8 +128,7 @@
 <script src="https://cdn.jsdelivr.net/gh/cstayyab/markdown-to-unicode@main/dist/markdown-to-unicode.js"></script>
 <script>
     document.body.addEventListener("htmx:afterRequest", function(event) {
-      const textarea = document.getElementById("post-content");
-      textarea.innerHTML = MarkdownToUnicode(textarea.value);
+      quill.root.innerHTML = MarkdownToUnicode(document.getElementById("post-content").innerHTML);
     });
-  </script>
+</script>
   
