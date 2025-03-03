@@ -1,8 +1,6 @@
 from django.http import HttpResponse
 from huggingface_hub import InferenceClient
 from nextweb.secret import HUGGINGFACE_API_KEY
-import markdown
-from bs4 import BeautifulSoup
 
 client = InferenceClient(api_key=HUGGINGFACE_API_KEY)
 
@@ -29,7 +27,7 @@ Generate a structured post brief covering:
 5️⃣ **CTA (Call-to-Action)**: Suggest an appropriate CTA (engagement, product interest, discussion, etc.).
 6️⃣ **Hashtag & Formatting Guidelines**: Relevant hashtags for visibility and platform-specific formatting.
 
-Ensure that the output is **clear, well-structured, and tailored for the chosen platform**.
+Ensure that the output is **clear, well-structured, and tailored for the chosen platform**. Make use of emojis throughout the outline.
          """},
         {"role": "user", "content": user_input}
     ]
@@ -40,7 +38,7 @@ Ensure that the output is **clear, well-structured, and tailored for the chosen 
         temperature=0.7,
         max_tokens=1024
     )
-    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Keep the word count around {int(word_count/5)}. Make good use of emojis."
+    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Keep the word count around {int(word_count/5)}. Use emojis throughout the post. Prefix each point with ✅"
     return detailed_prompt
 
 def generate_final_post(detailed_prompt: str, platform: str, post_type: str, word_count: int) -> str:
@@ -83,13 +81,6 @@ Ensure the post feels **authentic, platform-optimized, and valuable**. The post 
 
     return response["choices"][0]["message"]["content"].strip()
 
-def markdown_to_plaintext(md_text):
-    # Convert Markdown to HTML
-    html = markdown.markdown(md_text)
-    # Remove HTML tags and get plain text
-    soup = BeautifulSoup(html, "html.parser")
-    return soup.get_text()
-
 def generate_social_post(request):
     if request.method == "POST":
         # Get form data
@@ -108,9 +99,8 @@ def generate_social_post(request):
         detailed_prompt = generate_detailed_prompt(post_idea, purpose, platform, role, industry, post_type, word_count)
     
         final_post = generate_final_post(detailed_prompt, platform, post_type, word_count)
-        final_post_plain = markdown_to_plaintext(final_post)
 
         # Ensure the response is plain text so HTMX can replace the textarea content
-        return HttpResponse(final_post_plain, content_type="text/plain")
+        return HttpResponse(final_post, content_type="text/plain")
 
     return HttpResponse("Invalid Request", status=400)
