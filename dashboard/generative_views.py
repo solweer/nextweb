@@ -3,6 +3,10 @@ from huggingface_hub import InferenceClient
 from nextweb.secret import HUGGINGFACE_API_KEY
 import time
 import re 
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 client = InferenceClient(api_key=HUGGINGFACE_API_KEY)
 
@@ -109,20 +113,21 @@ def generate_social_post(request):
         post_type = request.POST.get("postType", "Personal")
         word_count = int(request.POST.get("wordCount", 350))
 
-        word_counts = {"twitter":280, "linkedin": 3000, "whatsapp": 5000, "instagram": 2200, "blog": 10000}
+        word_counts = {"twitter": 280, "linkedin": 3000, "whatsapp": 5000, "instagram": 2200, "blog": 10000}
         max_word_count = word_counts.get(platform, 3000)
         word_count = min(word_count, max_word_count)
+
         start_detailed = time.perf_counter()
         detailed_prompt = generate_detailed_prompt(post_idea, purpose, platform, industry, post_type, word_count)
         end_detailed = time.perf_counter()
-        print(f"Time taken for generate_detailed_prompt: {end_detailed - start_detailed:.4f} seconds")
+        logger.info(f"Time taken for generate_detailed_prompt: {end_detailed - start_detailed:.4f} seconds")
 
         start_final = time.perf_counter()
         final_post = generate_final_post(detailed_prompt, platform, post_type, word_count)
         end_final = time.perf_counter()
-        print(f"Time taken for generate_final_post: {end_final - start_final:.4f} seconds")
-        print(final_post)
-        # Ensure the response is plain text so HTMX can replace the textarea content
+        logger.info(f"Time taken for generate_final_post: {end_final - start_final:.4f} seconds")
+
+        logger.debug(final_post)  # Use debug level for detailed output
         return HttpResponse(markdown_to_unicode(final_post), content_type="text/plain")
 
     return HttpResponse("Invalid Request", status=400)
