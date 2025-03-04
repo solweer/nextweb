@@ -2,8 +2,17 @@ from django.http import HttpResponse
 from huggingface_hub import InferenceClient
 from nextweb.secret import HUGGINGFACE_API_KEY
 import time
+import re 
 
 client = InferenceClient(api_key=HUGGINGFACE_API_KEY)
+
+def to_unicode_bold(text):
+    return "".join(
+        chr(0x1D7CE + ord(c) - ord("0")) if "0" <= c <= "9" else
+        chr(0x1D5D4 + ord(c) - ord("A")) if "A" <= c <= "Z" else
+        chr(0x1D5EE + ord(c) - ord("a")) if "a" <= c <= "z" else c
+        for c in text
+    )
 
 def generate_detailed_prompt(user_input: str, purpose: str, platform: str, industry: str, post_type: str, word_count:int) -> str:
     """Expands a short user input into a structured content brief suitable for various platforms and post types."""
@@ -81,6 +90,15 @@ Ensure the post feels **authentic, platform-optimized, and valuable**.
     
     return response["choices"][0]["message"]["content"].strip()
 
+def markdown_to_unicode(text):
+    # Convert Markdown headings only if they have a space after #
+    text = re.sub(r"^(#{1,6})\s+([^\n#]+)$", lambda m: to_unicode_bold(m.group(2)), text, flags=re.MULTILINE)
+
+    # Convert bold (**text** or __text__) to Unicode bold
+    text = re.sub(r"\*\*(.*?)\*\*|__(.*?)__", lambda m: to_unicode_bold(m.group(1) or m.group(2)), text)
+
+    return text
+
 def generate_social_post(request):
     if request.method == "POST":
         # Get form data
@@ -105,6 +123,6 @@ def generate_social_post(request):
         print(f"Time taken for generate_final_post: {end_final - start_final:.4f} seconds")
         print(final_post)
         # Ensure the response is plain text so HTMX can replace the textarea content
-        return HttpResponse(final_post, content_type="text/plain")
+        return HttpResponse(markdown_to_unicode(final_post), content_type="text/plain")
 
     return HttpResponse("Invalid Request", status=400)
