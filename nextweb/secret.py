@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
 # Linkedin API Settings
 LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID")
 LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET")

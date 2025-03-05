@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleMDE Sync & Share</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <script defer>
+        document.addEventListener("DOMContentLoaded", function () {
+            const textarea = document.getElementById("post-content");
+            const shareButton = document.getElementById("share-button");
+
+            // Initialize SimpleMDE
+            const simpleMDE = new SimpleMDE({
+                element: textarea,
+                spellChecker: false,
+                toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "preview"],
+            });
+
+            // Sync SimpleMDE changes to textarea's innerHTML
+            simpleMDE.codemirror.on("change", function () {
+                textarea.innerHTML = simpleMDE.value(); // Update innerHTML
+            });
+
+            // Observe changes to textarea's innerHTML and update SimpleMDE
+            const observer = new MutationObserver(() => {
+                if (textarea.innerHTML !== simpleMDE.value()) {
+                    simpleMDE.value(textarea.innerHTML);
+                }
+            });
+
+            observer.observe(textarea, { childList: true, subtree: true, characterData: true });
+
+            // Web Share API - Share markdown text
+            shareButton.addEventListener("click", async () => {
+                const markdownText = simpleMDE.value();
+                
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: "Shared Markdown Content",
+                            text: markdownText
+                        });
+                    } catch (error) {
+                        alert("Error sharing: " + error);
+                    }
+                } else {
+                    alert("Web Share API not supported in this browser.");
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <textarea 
+        name="content" 
+        id="post-content"
+        rows="4"
+        class="w-full rounded-lg border border-gray-300 h-64 md:h-96 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500 resize-none transition duration-200"
+        placeholder="What's on your mind?"
+        maxlength="10000"
+        required>
+    </textarea>
+
+    <button 
+        id="share-button" 
+        class="mt-4 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-200">
+        Share Markdown
+    </button>
+</body>
+</html>
