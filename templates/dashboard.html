@@ -35,28 +35,81 @@
             
             
             <!-- Simplified post form with single textfield -->
-            <form method="post" action="" id="unified-post-form" class="mt-6" enctype="multipart/form-data">
+            <div>
               {% csrf_token %}
               
               <!-- Post Content Text Field -->
-              <div>
-                <label for="post-content" class="block text-sm font-medium text-gray-700 mb-2">Write your post</label>
+              <div class="mt-4">            
+                <!-- Hidden textarea (for form submission) -->
                 <textarea 
-                  name="content" 
-                  id="post-content"
-                  rows="4"
-                  class="w-full rounded-lg border border-gray-300 h-64 md:h-96 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500 resize-none transition duration-200"
-                  placeholder="What's on your mind?"
-                  maxlength="10000"
-                  required></textarea>
-                  
+                    name="content" 
+                    id="post-content"
+                    rows="4"
+                    class="hidden"
+                    maxlength="10000"
+                    required></textarea>
+            
+                <!-- SimpleMDE Editor -->
+                <textarea id="simplemde-editor"></textarea>
+            
                 {% if form.content.errors %}
-                  <div class="text-red-500 mt-1 text-sm">{{ form.content.errors }}</div>
+                    <div class="text-red-500 mt-1 text-sm">{{ form.content.errors }}</div>
                 {% endif %}
-              </div>
+            
+                <!-- Share Button -->
+                <button 
+                    id="share-button" 
+                    class="mt-4 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-200">
+                    Share Markdown
+                </button>
+            </div>
+            
+            <!-- SimpleMDE and Web Share API Script -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+            <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/gh/cstayyab/markdown-to-unicode@main/dist/markdown-to-unicode.js"></script>
+
+            <script defer>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const postContent = document.getElementById("post-content");
+                    const simpleMDEEditor = document.getElementById("simplemde-editor");
+                    const shareButton = document.getElementById("share-button");
+            
+                    // Initialize SimpleMDE on the new textarea
+                    const simpleMDE = new SimpleMDE({
+                        element: simpleMDEEditor,
+                        spellChecker: false,
+                        toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "preview"],
+                    });
+            
+                    document.body.addEventListener("htmx:afterRequest", function(event) {
+                        const textarea = document.getElementById("post-content");
+                        //textarea.innerHTML = MarkdownToUnicode(textarea.innerHTML);
+                        simpleMDE.value(textarea.value);
+                    });
+                            
+                    // Web Share API - Share from SimpleMDE
+                    shareButton.addEventListener("click", async () => {
+                        const contentToShare = simpleMDE.value().trim(); // Get Markdown text
+                        
+                        if (navigator.share) {
+                            try {
+                                await navigator.share({
+                                    title: "Shared Markdown Content",
+                                    text: MarkdownToUnicode(contentToShare),
+                                });
+                            } catch (error) {
+                                alert("Error sharing: " + error);
+                            }
+                        } else {
+                            alert("Web Share API not supported in this browser.");
+                        }
+                    });
+                });
+            </script>            
               
               <!-- Media Upload (Only for LinkedIn) -->
-              <div class="mt-4">
+              <div class="mt-4 hidden">
                 <label for="media" class="block text-sm font-medium text-gray-700 mb-2">Media Upload (LinkedIn only)</label>
                 <input 
                   type="file" 
@@ -65,11 +118,6 @@
                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                 <small class="text-gray-500 mt-1 block">Supported formats: Images (jpg, png, gif), Videos (mp4, mov), Documents (pdf, docx, pptx)</small>
               </div>
-              
-              <!-- Warning about Twitter Media Uploads -->
-              <p class="mt-4 text-sm text-yellow-600 font-semibold">
-                🚫 Media uploads for X are on a coffee break—coming soon! ☕
-              </p>
             
               <!-- Submit Buttons -->
               <div class="mt-6 flex flex-wrap gap-4">
@@ -98,56 +146,9 @@
                     </svg>
                     Post to LinkedIn
                   </button>
-                {% endif %}
-                <button 
-                  type="button" 
-                  id="share-button"
-                  class="inline-flex gap-3 items-center px-5 py-2.5 border border-transparent font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200">
-                  <span class="material-icons">
-                    share
-                  </span>
-                  Share
-                </button>
-                <script>
-                  document.getElementById("share-button").addEventListener("click", async function () {
-                    const postContent = document.getElementById("post-content").value.trim();
-                    const fileInput = document.getElementById("media");
-                    const files = fileInput.files;
-                
-                    if (!postContent && files.length === 0) {
-                      alert("Please enter some text or select a media file to share.");
-                      return;
-                    }
-                
-                    try {
-                      // Check if Web Share API supports files
-                      if (navigator.canShare && files.length > 0 && navigator.canShare({ files: [files[0]] })) {
-                        await navigator.share({
-                          title: "Check this out!",
-                          text: postContent,  // Some platforms may ignore this if files are included
-                          files: [files[0]]
-                        });
-                      } 
-                      // Fallback to text-only share if media sharing isn't fully supported
-                      else if (navigator.share) {
-                        await navigator.share({
-                          title: "Check this out!",
-                          text: postContent
-                        });
-                      } 
-                      // If sharing is not supported, provide a manual copy option
-                      else {
-                        alert("Sharing is not supported on this device. You can manually copy the text.");
-                      }
-                    } catch (error) {
-                      console.error("Error sharing:", error);
-                    }
-                  });
-                </script>
-                
-                               
+                {% endif %}                   
               </div>
-            </form> 
+            </div> 
 
           </div>
         </div>
@@ -269,9 +270,9 @@
       </div>
 
       <!-- Right sidebar for stats or other content -->
-      <div class="lg:col-span-1 space-y-8">
+      <div class="lg:col-span-1">
         <!-- Account Status Widget -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hidden">
           <div class="p-6">
             <h3 class="text-lg font-bold text-gray-900 mb-4">Account Status</h3>
             <div class="space-y-4">

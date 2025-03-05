@@ -16,29 +16,29 @@ class DashboardView(View):
             return redirect('home')
 
         connections = OAuthToken.objects.filter(user=user_profile)
-        platforms_status = self._get_platforms_status(connections)
+        #platforms_status = self._get_platforms_status(connections)
 
-        if not any(platform.get('is_connected', False) for platform in platforms_status.values()):
-            if request.path != '/connect/':
-                return redirect('socialmedialogin')
+        #if not any(platform.get('is_connected', False) for platform in platforms_status.values()):
+            #if request.path != '/connect/':
+                #return redirect('socialmedialogin')
 
         # twitter platform
-        if platforms_status.get('twitter', {}).get('is_connected'):
-            twitter_posts = PostStatus.objects.filter(
-                user=user_profile, platform='twitter' 
-            ).order_by('-created_at')[:3]
-            platforms_status['twitter']['recent_posts'] = twitter_posts
+        #if platforms_status.get('twitter', {}).get('is_connected'):
+            #twitter_posts = PostStatus.objects.filter(
+                #user=user_profile, platform='twitter' 
+            #).order_by('-created_at')[:3]
+            #platforms_status['twitter']['recent_posts'] = twitter_posts
 
         # linkedin platform
-        if platforms_status.get('linkedin', {}).get('is_connected'):
-            linkedin_posts = PostStatus.objects.filter(
-                user=user_profile, platform='linkedin'
-            ).order_by('-created_at')[:3]
-            platforms_status['linkedin']['recent_posts'] = linkedin_posts
+        #if platforms_status.get('linkedin', {}).get('is_connected'):
+            #linkedin_posts = PostStatus.objects.filter(
+                #user=user_profile, platform='linkedin'
+            #).order_by('-created_at')[:3]
+            #platforms_status['linkedin']['recent_posts'] = linkedin_posts
 
         return render(request, 'dashboard.html', {
             'user': request.user,
-            'platforms': platforms_status,
+            #'platforms': platforms_status,
             'total_connections': connections.count(),
             'account_created': request.user.date_joined
         })
