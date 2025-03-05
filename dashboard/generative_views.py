@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from huggingface_hub import InferenceClient
-from nextweb.secret import HUGGINGFACE_API_KEY
+from together import Together
+from nextweb.secret import TOGETHER_API_KEY
 import time
 import re 
 import logging
@@ -8,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-client = InferenceClient(api_key=HUGGINGFACE_API_KEY)
+client = Together(api_key=TOGETHER_API_KEY)
 
 def to_unicode_bold(text):
     return "".join(
@@ -49,13 +50,16 @@ Ensure that the output is **clear, well-structured, and tailored for the chosen 
         {"role": "user", "content": user_mesasge}
     ]
     
-    response = client.chat_completion(
-        model="Qwen/Qwen2.5-72B-Instruct",
+    response = client.chat.completions.create(
+        model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
         messages=messages,
-        temperature=0.7,
-        max_tokens=1024
+        temperature=0.8,
+        max_tokens=None,
+        top_p=0.7,
+        top_k=50,
+        repetition_penalty=1,
     )
-    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Use emojis throughout the post. Prefix each bullet with a relevant emoji. The post language is strictly English."
+    detailed_prompt = response.choices[0].message.content.strip()+f"This is supposed to be posted to {platform}. Use emojis throughout the post. Prefix each bullet with a relevant emoji. The post language is strictly English."
     
     return detailed_prompt
 
@@ -85,14 +89,16 @@ Ensure the post feels **authentic, platform-optimized, and valuable**.
         {"role": "user", "content": detailed_prompt}
     ]
     
-    response = client.chat_completion(
-        model="Qwen/Qwen2.5-72B-Instruct",
+    response = client.chat.completions.create(
+        model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
         messages=messages,
         temperature=0.8,
-        max_tokens=2048
+        max_tokens=None,
+        top_p=0.7,
+        top_k=50,
+        repetition_penalty=1,
     )
-    
-    return response["choices"][0]["message"]["content"].strip()
+    return response.choices[0].message.content.strip()
 
 def markdown_to_unicode(text):
     # Convert Markdown headings only if they have a space after #
