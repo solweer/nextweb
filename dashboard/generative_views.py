@@ -45,7 +45,7 @@ Generate a structured post brief covering:
 5️⃣ **CTA (Call-to-Action)**: Suggest an appropriate CTA (engagement, product interest, discussion, etc.).
 6️⃣ **Hashtag & Formatting Guidelines**: Relevant hashtags for visibility and platform-specific formatting.
 
-Ensure that the output is **clear, well-structured, and tailored for the chosen platform**. Make use of emojis throughout the outline. No need to generate an example post.
+Ensure that the output is **clear, well-structured, and tailored for {platform}**. Make use of emojis throughout the outline. No need to generate an example post.
          """},
         {"role": "user", "content": user_mesasge}
     ]
@@ -59,7 +59,7 @@ Ensure that the output is **clear, well-structured, and tailored for the chosen 
         top_k=50,
         repetition_penalty=1,
     )
-    detailed_prompt = response.choices[0].message.content.strip()+f"This is supposed to be posted to {platform}. Use emojis throughout the post. Prefix each bullet with a relevant emoji. The post language is strictly English."
+    detailed_prompt = response.choices[0].message.content.strip()+f"This is supposed to be posted to {platform}. Use emojis throughout the post. Prefix each point with a relevant emoji. The post language is strictly English."
     
     return detailed_prompt
 
@@ -84,7 +84,7 @@ You are an expert content editor and writer specializing in **engaging, professi
 3️⃣ **Call to Action (CTA)** (encourage engagement, sign-ups, comments).
 4️⃣ **Relevant Hashtags & Mentions** (if applicable).
 
-Ensure the post feels **authentic, platform-optimized, and valuable**.
+Ensure the post feels **authentic, platform-optimized, and valuable**. Add relevant formatting wherever approriate.
          """},
         {"role": "user", "content": detailed_prompt}
     ]
