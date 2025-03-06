@@ -15,10 +15,10 @@ def generate_detailed_prompt(user_input: str, purpose: str, post_category: str, 
     """Expands a short user input into a structured content brief suitable for various platforms and post types."""
 
     platform_guidelines = {
-        "linkedin": "Engaging, professional, and well-structured. Prefix each major point with a fun emoji, use a tick emoji for key points. Use storytelling and limit hashtags to 3-5.",
+        "linkedin": "Engaging, professional, and well-structured. Use storytelling and limit hashtags to 3-5.",
         "instagram": "Concise, visually engaging, and fun. Use emojis and line breaks for readability.",
         "whatsapp": "Short, conversational, and direct. Avoid unnecessary formatting and hashtags.",
-        "youtube": "Structured for video delivery. Use an engaging hook, short sentences, and clear CTAs."
+        "youtube": "For video captions: Use an engaging hook, clear structure, and strong CTAs. Keep sentences short and direct. For community posts: Use casual, engaging text to start discussions, ask questions, or share updates. Avoid excessive hashtags."
     }
 
     post_type_guidelines = {
